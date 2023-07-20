@@ -1,0 +1,1 @@
+{"name":"Local: resnet_attn","url":"e:\\DLP\\local-global\\resnet_attn.py","tests":[{"id":1670349874227,"input":"","output":""}],"interactive":false,"memoryLimit":1024,"timeLimit":3000,"srcPath":"e:\\DLP\\local-global\\resnet_attn.py","group":"local","local":true}

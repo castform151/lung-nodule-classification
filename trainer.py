@@ -15,7 +15,7 @@ class Trainer:
                  optimizer,
                  loss,
                  name,
-                 device='cuda',
+                 device='cpu',
                  deterministic=False,
                  parallel=False
                  ):
@@ -30,13 +30,12 @@ class Trainer:
         self.parallel = parallel
         if parallel:
             self.model = nn.DataParallel(model)
-        self.model.cuda(self.device)
+        self.model.to(self.device)
         self.optimizer = optimizer
         self.loss = loss
         self.n_epochs = n_epochs
         self.name = name
         self.log = ''
-
 
     def train_epoch(self, epoch):
         s_time = time.time()
@@ -44,7 +43,7 @@ class Trainer:
         all_losses = []
         all_acc = []
         for data, target in self.dataset:
-            data, target = data.cuda(self.device), target.cuda(self.device)
+            data, target = data.to(self.device), target.to(self.device)
             self.optimizer.zero_grad()
             output = self.model(data)
             acc = self.calc_accuracy(output, target)
@@ -55,7 +54,8 @@ class Trainer:
             all_acc.append(acc.cpu())
 
         valid_acc = self.validate()
-        self.report(all_losses, all_acc, valid_acc, epoch, time.time() - s_time)
+        self.report(all_losses, all_acc, valid_acc,
+                    epoch, time.time() - s_time)
 
     def report(self, all_losses, all_acc, valid_acc, epoch, duration):
         n_train = len(all_losses)
@@ -81,14 +81,13 @@ class Trainer:
         print(msg)
         self.log += msg + '\n'
 
-
     def predict(self):
         self.model.eval()
         all_pred = T.zeros(len(self.valid_dataset.dataset))
         all_targets = T.zeros(len(self.valid_dataset.dataset))
         for batch_idx, (data, target) in enumerate(self.valid_dataset):
             with T.no_grad():
-                data, target = data.cuda(self.device), target.cuda(self.device)
+                data, target = data.to(self.device), target.to(self.device)
                 output = self.model(data)
             st = batch_idx * self.batch_size
 
@@ -98,7 +97,6 @@ class Trainer:
         all_pred = all_pred.view(-1, 3).mean(dim=1)
         all_targets = all_targets.view(-1, 3).mean(dim=1)
         return all_pred, all_targets
-
 
     def validate(self):
         all_pred, all_targets = self.predict()
@@ -116,7 +114,5 @@ class Trainer:
             self.train_epoch(epoch)
         diff = time.time() - start_t
         print(f'took {diff} seconds')
-        with open(path.join('results',f'{self.name}.txt'),'w') as f:
+        with open(path.join('results', f'{self.name}.txt'), 'w') as f:
             f.write(self.log)
-
-

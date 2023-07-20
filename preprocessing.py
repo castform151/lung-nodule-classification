@@ -9,6 +9,7 @@ from os import path
 
 img_size = 32
 
+
 class Augmenter:
     def __init__(self, hflip=True, rotate=True, blurring=False):
         self.hflip = hflip
@@ -43,14 +44,14 @@ def resize(im):
 def generate_dataset(dir):
     df = pd.read_csv(dir+'/labels.csv')
     df['testing'] = 1
-    voxels = np.zeros((len(df),48,48,48), dtype=np.uint8)
+    voxels = np.zeros((len(df), 48, 48, 48), dtype=np.uint8)
     augmenter = Augmenter(hflip=True, rotate=True, blurring=True)
     augmenter2 = Augmenter(hflip=False, rotate=False, blurring=False)
     for i, row in df.iterrows():
-        voxels[int(row.id)] = np.load('{0}/{1:.0f}.npy'.format(dir,row.id))
+        voxels[int(row.id)] = np.load('{0}/{1:.0f}.npy'.format(dir, row.id))
 
     for i in range(10):
-        folder = '{0}/{1}/'.format(dir,i)
+        folder = '{0}/{1}/'.format(dir, i)
         if not os.path.exists(folder):
             os.makedirs(folder)
         tests = df[df.fold == i].copy()
@@ -59,21 +60,22 @@ def generate_dataset(dir):
         new_df = pd.concat([tests, trains])
         new_df.to_csv(folder+'/labels.csv', index=False)
 
-        for j, row in tests.iterrows():
+        for row in tests.itertuples(index=False):
             voxel = voxels[int(row.id)]
-            for e,im in enumerate(augmenter2.augment(voxel)):
+            for e, im in enumerate(augmenter2.augment(voxel)):
                 im2 = resize(im)
                 im2.save('{0}{1:.0f}.{2}.png'.format(folder, row.id, e))
 
-        for j, row in trains.iterrows():
+        for row in trains.itertuples(index=False):
             voxel = voxels[int(row.id)]
-            for e,im in enumerate(augmenter.augment(voxel)):
+            for e, im in enumerate(augmenter.augment(voxel)):
                 im2 = resize(im)
                 im2.save('{0}{1:.0f}.{2}.png'.format(folder, row.id, e))
+
 
 def get_dataset(dir):
     df = pd.read_csv(path.join(dir, 'labels.csv'))
-    df_test = df[df.testing==1]
+    df_test = df[df.testing == 1]
     df_train = df[df.testing == 0]
 
     num_data = len(df_train)
@@ -81,10 +83,10 @@ def get_dataset(dir):
     x = t.zeros((num_data * aug_size, 1, img_size, img_size))
     y = t.zeros((num_data * aug_size, 1))
     c = 0
-    for i, row in df_train.iterrows():
+    for row in df_train.itertuples(index=False):
         id = int(row.id)
         for j in range(aug_size):
-            im = imread(path.join(dir,f'{id:.0f}.{j}.png'))
+            im = imread(path.join(dir, f'{id:.0f}.{j}.png'))
             x[c * aug_size + j, 0, :, :] = t.from_numpy(im)
             y[c * aug_size + j][0] = row.malignancy_th
         c += 1
@@ -99,7 +101,7 @@ def get_dataset(dir):
     x = t.zeros((num_data*aug_size, 1, img_size, img_size))
     y = t.zeros((num_data*aug_size, 1))
     c = 0
-    for i, row in df_test.iterrows():
+    for row in df_test.itertuples(index=False):
         id = int(row.id)
         for j in range(aug_size):
             im = imread(path.join(dir, f'{id:.0f}.{j}.png'))
@@ -112,9 +114,10 @@ def get_dataset(dir):
 
     return trainset, testset
 
+
 def get_dataset3d(dir):
     df = pd.read_csv(path.join(dir, 'labels.csv'))
-    df_test = df[df.testing==1]
+    df_test = df[df.testing == 1]
     df_train = df[df.testing == 0]
 
     num_data = len(df_train)
@@ -122,7 +125,7 @@ def get_dataset3d(dir):
     x = t.zeros((num_data * aug_size, 3, img_size, img_size))
     y = t.zeros((num_data * aug_size, 1))
     c = 0
-    for i, row in df_train.iterrows():
+    for row in df_train.itertuples(index=False):
         id = int(row.id)
         for j in range(aug_size):
             im = imread(path.join(dir, f'{id:.0f}.{j}.png'))
@@ -141,7 +144,7 @@ def get_dataset3d(dir):
     x = t.zeros((num_data*aug_size, 3, img_size, img_size))
     y = t.zeros((num_data*aug_size, 1))
     c = 0
-    for i, row in df_test.iterrows():
+    for row in df_test.itertuples(index=False):
         id = int(row.id)
         for j in range(aug_size):
             im = imread(path.join(dir, f'{id:.0f}.{j}.png'))

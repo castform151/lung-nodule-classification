@@ -1,0 +1,3 @@
+256 50 <function expLocalGlobal.<locals>.model_opt at 0x000002C538BB2560>
+------------ fold 1 ------------
+AUC: 0.9631436314363143, precession: 0.926829268292683, Recall: 0.926829268292683

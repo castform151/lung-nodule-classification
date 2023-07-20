@@ -8,8 +8,10 @@ import random
 from sklearn import metrics
 from os import path
 
+
 def get_metrics(target, pred):
-    prec, recall, _, _ = metrics.precision_recall_fscore_support(target, pred>0.5, average='binary')
+    prec, recall, _, _ = metrics.precision_recall_fscore_support(
+        target, pred > 0.5, average='binary')
     fpr, tpr, thresholds = metrics.roc_curve(target, pred)
     auc = metrics.auc(fpr, tpr)
     return prec, recall, auc
@@ -20,12 +22,14 @@ def calc_accuracy(x, y):
     matches = x_th == y.long()
     return matches
 
+
 def reset_rand():
     seed = 1000
     T.manual_seed(seed)
     T.cuda.manual_seed(seed)
     np.random.seed(seed)
     random.seed(seed)
+
 
 def kfold(src_path,
           batch_size,
@@ -41,20 +45,23 @@ def kfold(src_path,
     print(f'Experiment {name}')
     all_pred = T.zeros(849)
     all_targets = T.zeros(849)
-    i =0
+    i = 0
     f = open(path.join('results', f'{name}.txt'), 'w')
     f.write(f'{batch_size} {n_epochs} {model_optimizer}\n')
-    for fold in range(10):
+    for fold in range(1):
 
         reset_rand()
 
         print(f'------------ fold {fold+1} ------------')
         f.write(f'------------ fold {fold+1} ------------\n')
-        trset, testset = dataset_func(path.join(src_path,str(fold)))
-        print(f'Training Size: {len(trset)}, Validation Size: {len(testset)}')
+        trset, testset = dataset_func(path.join(src_path, str(fold)))
+        print(
+            f'Augmented Training Size: {len(trset)}, Augmented Validation Size: {len(testset)}')
+        print(
+            f'Actual Training Size: {len(trset)//18}, Actual Validation Size: {len(testset)//3}')
         trset = DataLoader(trset, batch_size, shuffle=True)
         testset = DataLoader(testset, batch_size, shuffle=False)
-        model,optimizer = model_optimizer()
+        model, optimizer = model_optimizer()
         tr = Trainer(
             trset,
             testset,
@@ -82,7 +89,6 @@ def kfold(src_path,
 
         del tr
 
-
     matches = calc_accuracy(all_pred, all_targets)
     acc = matches.float().mean()
     all_pred = all_pred.numpy()
@@ -90,10 +96,9 @@ def kfold(src_path,
 
     prec, recall, auc = get_metrics(all_targets, all_pred)
     print(f'accuray: {acc}, AUC: {auc}, precession: {prec}, Recall: {recall}')
-    f.write(f'accuray: {acc}, AUC: {auc}, precession: {prec}, Recall: {recall}')
+    f.write(
+        f'accuray: {acc}, AUC: {auc}, precession: {prec}, Recall: {recall}')
     result = {'all_pred': all_pred, 'all_targets': all_targets}
-    T.save(result, path.join('results',f'{name}_result'))
+    T.save(result, path.join('results', f'{name}_result'))
+    T.save(model.state_dict(), 'localglobal_group26.pth')
     f.close()
-
-
-
