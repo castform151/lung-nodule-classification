@@ -1,1 +1,0 @@
-epoch 0: loss 0.601 Tr Acc 0.69 Val Acc 0.52 AUC 0.76 duration 224.49

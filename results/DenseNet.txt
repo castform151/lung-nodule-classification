@@ -1,2 +1,0 @@
-256 50 <function expDenseNet.<locals>.model_opt at 0x000002917CC92C20>
------------- fold 1 ------------

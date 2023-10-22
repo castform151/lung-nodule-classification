@@ -8,6 +8,7 @@ def conv3x3(in_planes, out_planes, stride=1):
 
 
 class BasicBlock(nn.Module):
+    """Residual block"""
     expansion = 1
 
     def __init__(self, inplanes, planes, stride=1, downsample=None):
@@ -61,6 +62,7 @@ class BasicBlock(nn.Module):
         # out += identity
         # out = self.relu1(out)
 
+        # Resnet connection
         out += identity
         out = self.relu(out)
 

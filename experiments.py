@@ -3,7 +3,6 @@ import numpy as np
 import random
 from torch.optim.adam import Adam
 from resnet_attn import *
-from preprocessing import get_dataset3d
 import sys
 from PIL import Image, ImageFile
 ImageFile.LOAD_TRUNCATED_IMAGES = True
@@ -38,7 +37,7 @@ def expLocalGlobal(data_path):
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
-        print('Error, we expect one argument')
+        print('python3 experiments.py dataset/')
 
     else:
         data_path = sys.argv[1]

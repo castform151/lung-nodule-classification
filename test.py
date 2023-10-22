@@ -35,11 +35,10 @@ def get_metrics(target, pred):
 
 
 model = LocalGlobalNetwork()
-model.load_state_dict(torch.load(
-    'E:\DLP\local-global\localglobal_group26.pth'))
+model.load_state_dict(torch.load("results/localglobal_group26.pth"))
 model.eval()
 
-trset, testset = get_dataset('E:\DLP\local-global\lidc_img/0')
+trset, testset = get_dataset("./dataset/")
 tr = Trainer(
     trset,
     testset,
